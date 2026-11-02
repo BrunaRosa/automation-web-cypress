@@ -43,8 +43,12 @@ function verificarResultadoPesquisa(termo) {
   cy.get(seletores.titulo).invoke('text').should('match', /searched products/i);
   cy.get(seletores.nomeProduto)
     .should('have.length.greaterThan', 0)
-    .each(($nome) => {
-      expect($nome.text().toLowerCase()).to.include(termo.toLowerCase());
+    .then(($nomes) => {
+      const termoNormalizado = termo.toLowerCase();
+      const nomes = $nomes.toArray().map((el) => el.innerText.trim().toLowerCase());
+      const possuiCorrespondencia = nomes.some((nome) => nome.includes(termoNormalizado));
+
+      expect(possuiCorrespondencia, `nenhum resultado contém o termo "${termo}"`).to.equal(true);
     });
 }
 

@@ -13,7 +13,7 @@ function verificarProdutosNoCarrinho(nomesEsperados) {
   cy.get(seletores.nomesProdutos)
     .should('have.length', nomesEsperados.length)
     .then(($links) => {
-      const nomes = [...$links].map((el) => el.innerText.trim());
+      const nomes = $links.toArray().map((el) => el.innerText.trim());
       nomesEsperados.forEach((nome) => expect(nomes).to.include(nome));
     });
 }
