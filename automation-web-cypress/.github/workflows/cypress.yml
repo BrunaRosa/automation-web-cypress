@@ -1,0 +1,48 @@
+name: Cypress E2E
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: Testes E2E (Chrome)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependências
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Executar testes Cypress
+        run: npx cypress run --browser chrome
+        env:
+          CI: true
+
+      - name: Publicar relatório HTML (mochawesome)
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: relatorio-html
+          path: reports/
+          retention-days: 14
+
+      - name: Publicar screenshots das falhas
+        uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          name: screenshots
+          path: cypress/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
